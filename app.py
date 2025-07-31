@@ -276,10 +276,10 @@ def dashboard():
 @login_required
 @admin_required
 def add_item():
-    """ Muestra el formulario para añadir items (GET) y procesa la adición (POST). """
+
     if request.method == "POST":
         try:
-            # Obtener datos del formulario
+
             objeto = request.form.get("objeto", "").strip()
             color = request.form.get("color", "").strip()
             material = request.form.get("material", "").strip()
@@ -324,7 +324,7 @@ def add_item():
                         id_objeto, objeto, color, material, marca, detalle, lugar, pertenece,
                         datetime.now(timezone.utc), "manual", barcode_url
                     ))
-                    conn.commit()  # ¡Importante! Confirmar la transacción
+                    conn.commit()
 
             logging.info(f"Objeto insertado con ID: {id_objeto}")
             flash(f"¡Objeto '{objeto}' añadido con éxito!", "success")
@@ -347,7 +347,7 @@ def add_item():
 @login_required
 @admin_required
 def edit_item(item_id):
-    """ Muestra formulario para editar (GET) y procesa la actualización (POST). """
+
     if request.method == "POST":
         try:
             # Obtener datos del formulario
@@ -446,7 +446,7 @@ def edit_item(item_id):
 @login_required
 @admin_required
 def delete_item(item_id):
-    """ Elimina un item de la base de datos y su código de barras. """
+
     item_to_delete = None
     try:
         # Primero, obtenemos los datos del item para saber qué archivo de imagen borrar.
@@ -505,7 +505,7 @@ def control_panel():
 @login_required
 @admin_required
 def approve_users():
-    # (Esta función no cambia)
+    
     pending_users = []
     try:
         with get_db_connection() as conn:
@@ -522,7 +522,7 @@ def approve_users():
 @login_required
 @admin_required
 def approve_user(user_id):
-    # (Esta función no cambia)
+    
     try:
         with get_db_connection() as conn:
             with conn.cursor() as cur:
@@ -570,6 +570,55 @@ def deny_user(user_id):
         logging.error(f"Error al denegar usuario {user_id}: {e}")
 
     return redirect(url_for('approve_users'))
+
+@app.route("/admin/manage_users")
+@login_required
+@admin_required
+def manage_users():
+    users = []
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                # Excluir al usuario actual de la lista para que no se pueda cambiar su propio rol
+                cur.execute("SELECT id, username, role FROM users WHERE id != %s ORDER BY username", (session.get('user_id'),))
+                users = cur.fetchall()
+    except psycopg.Error as e:
+        flash("No se pudo cargar la lista de usuarios.", "danger")
+        logging.error(f"Error en manage_users: {e}")
+    return render_template("manage_users.html", users=users)
+
+@app.route("/admin/set_role/<int:user_id>", methods=["POST"])
+@login_required
+@admin_required
+def set_user_role(user_id):
+    new_role = request.form.get('role')
+    if new_role not in ['admin', 'viewer']:
+        flash("Rol no válido.", "danger")
+        return redirect(url_for('manage_users'))
+
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                # Prevenir que un admin se quite su propio rol accidentalmente desde esta ruta
+                if user_id == session.get('user_id'):
+                    flash("No puedes cambiar tu propio rol.", "warning")
+                    return redirect(url_for('manage_users'))
+
+                cur.execute("UPDATE users SET role = %s WHERE id = %s RETURNING username", (new_role, user_id))
+                updated_user = cur.fetchone()
+                conn.commit()
+
+                if updated_user:
+                    details = f"Rol del usuario '{updated_user['username']}' cambiado a '{new_role}'"
+                    log_action('SET_USER_ROLE', target_id=user_id, details=details)
+                    flash(f"Rol de '{updated_user['username']}' actualizado a '{new_role}'.", "success")
+                else:
+                    flash("Usuario no encontrado.", "warning")
+    except psycopg.Error as e:
+        flash("Error de base de datos al cambiar el rol.", "danger")
+        logging.error(f"Error al cambiar rol para usuario {user_id}: {e}")
+
+    return redirect(url_for('manage_users'))
 
 
 
