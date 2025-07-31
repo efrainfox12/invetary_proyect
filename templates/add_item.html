@@ -1,0 +1,90 @@
+{% extends "index.html" %}
+
+{% block title %}Añadir Objeto{% endblock %}
+
+{% block content %}
+    <h2><i class="bi bi-journal-plus"></i> Registrar Nuevo Objeto</h2>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            {# El action apunta a la misma ruta add_item (POST) #}
+            <form method="POST" action="{{ url_for('add_item') }}" id="addItemForm" class="needs-validation" novalidate>
+
+                {# Fila para Objeto y Color #}
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="objeto" class="form-label">Objeto <span class="text-danger">*</span></label>
+                        {# Usar form_data.get para rellenar si hay error #}
+                        <input type="text" class="form-control" id="objeto" name="objeto" required value="{{ form_data.get('objeto', '') }}">
+                        <div class="invalid-feedback">Por favor, ingresa el nombre del objeto.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="color" class="form-label">Color</label>
+                        <input type="text" class="form-control" id="color" name="color" value="{{ form_data.get('color', '') }}">
+                    </div>
+                </div>
+
+                {# Fila para Material y Marca #}
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="material" class="form-label">Material</label>
+                        <input type="text" class="form-control" id="material" name="material" value="{{ form_data.get('material', '') }}">
+                    </div>
+                     <div class="col-md-6">
+                        <label for="marca" class="form-label">Marca</label>
+                        <input type="text" class="form-control" id="marca" name="marca" value="{{ form_data.get('marca', '') }}">
+                    </div>
+                </div>
+
+                {# Fila para Pertenece a y Lugar #}
+                 <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="pertenece" class="form-label">Pertenece a <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="pertenece" name="pertenece" required value="{{ form_data.get('pertenece', '') }}">
+                         <div class="invalid-feedback">Por favor, indica a quién pertenece.</div>
+                    </div>
+                     <div class="col-md-6">
+                        <label for="lugar" class="form-label">Lugar / Ubicación <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="lugar" name="lugar" required value="{{ form_data.get('lugar', '') }}">
+                         <div class="invalid-feedback">Por favor, indica la ubicación.</div>
+                    </div>
+                </div>
+
+                {# Fila para Detalles #}
+                <div class="mb-3">
+                    <label for="detalle" class="form-label">Detalle</label>
+                    <textarea class="form-control" id="detalle" name="detalle" rows="3">{{ form_data.get('detalle', '') }}</textarea>
+                </div>
+
+                {# Botón de envío #}
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-success"> {# Botón verde para añadir #}
+                        <i class="bi bi-plus-circle-fill"></i> Añadir Objeto
+                    </button>
+                </div>
+                <small class="text-muted d-block mt-2"><span class="text-danger">*</span> Campos obligatorios</small>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{# Script opcional para activar validación Bootstrap #}
+{% block scripts %}
+<script>
+// Example starter JavaScript for disabling form submissions if there are invalid fields
+(function () {
+  'use strict'
+  var forms = document.querySelectorAll('.needs-validation')
+  Array.prototype.slice.call(forms)
+    .forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+        form.classList.add('was-validated')
+      }, false)
+    })
+})()
+</script>
+{% endblock %}

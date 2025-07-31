@@ -1,0 +1,121 @@
+{% extends "index.html" %}
+
+{% block title %}Editar Objeto{% endblock %}
+
+{% block content %}
+    {# La variable 'item' viene de la ruta GET /edit/<item_id> #}
+    <h2><i class="bi bi-pencil-fill"></i> Editar Objeto (ID: <code>{{ item._id }}</code>)</h2>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            {# La acción del formulario apunta a la misma URL pero con método POST #}
+            <form method="POST" action="{{ url_for('edit_item', item_id=item._id) }}" class="needs-validation" novalidate>
+
+                {# Mostrar código de barras actual (si existe) #}
+                {% if item.codigo_barras_url %}
+                <div class="mb-4 text-center">
+                    <label class="form-label d-block fw-bold">Código de Barras Actual:</label>
+                    <img src="{{ item.codigo_barras_url }}" alt="Código {{ item._id }}" class="barcode-img border p-1 bg-light rounded" style="max-width: 250px;">
+                    <p class="small text-muted mt-1">ID: <code>{{ item._id }}</code></p>
+                </div>
+                 <hr class="mb-4">
+                {% endif %}
+
+
+                {# Fila para Objeto y Color (pre-rellenado con item.get) #}
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="objeto" class="form-label">Objeto <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="objeto" name="objeto" required value="{{ item.get('objeto', '') }}">
+                        <div class="invalid-feedback">Por favor, ingresa el nombre del objeto.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="color" class="form-label">Color</label>
+                        <input type="text" class="form-control" id="color" name="color" value="{{ item.get('color', '') }}">
+                    </div>
+                </div>
+
+                {# Fila para Material y Marca #}
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="material" class="form-label">Material</label>
+                        <input type="text" class="form-control" id="material" name="material" value="{{ item.get('material', '') }}">
+                    </div>
+                     <div class="col-md-6">
+                        <label for="marca" class="form-label">Marca</label>
+                        <input type="text" class="form-control" id="marca" name="marca" value="{{ item.get('marca', '') }}">
+                    </div>
+                </div>
+
+                {# Fila para Pertenece a y Lugar #}
+                 <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="pertenece" class="form-label">Pertenece a <span class="text-danger">*</span></label>
+                        {# Ojo: el campo en Mongo es 'pertenece_a', pero el name del input es 'pertenece' #}
+                        <input type="text" class="form-control" id="pertenece" name="pertenece" required value="{{ item.get('pertenece_a', '') }}">
+                         <div class="invalid-feedback">Por favor, indica a quién pertenece.</div>
+                    </div>
+                     <div class="col-md-6">
+                        <label for="lugar" class="form-label">Lugar / Ubicación <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="lugar" name="lugar" required value="{{ item.get('lugar', '') }}">
+                         <div class="invalid-feedback">Por favor, indica la ubicación.</div>
+                    </div>
+                </div>
+
+                {# Fila para Detalles #}
+                <div class="mb-4"> {# Más margen inferior antes de las fechas #}
+                    <label for="detalle" class="form-label">Detalle</label>
+                    <textarea class="form-control" id="detalle" name="detalle" rows="3">{{ item.get('detalle', '') }}</textarea>
+                </div>
+
+                 {# Mostrar fechas (solo lectura) #}
+                 <div class="row mb-4">
+                     <div class="col-md-6">
+                         <label class="form-label d-block fw-bold">Fecha Ingreso:</label>
+                         {# Acceder a la fecha formateada en 'otros' #}
+                         <span class="form-control-plaintext">{{ item.get('otros', {}).get('fecha_ingreso_str', 'N/A') }}</span>
+                     </div>
+                     {# Mostrar fecha de modificación si existe #}
+                     {% if item.get('otros', {}).get('modificado_en_str') %}
+                     <div class="col-md-6">
+                         <label class="form-label d-block fw-bold">Última Modificación:</label>
+                         <span class="form-control-plaintext">{{ item.get('otros', {}).get('modificado_en_str') }}</span>
+                     </div>
+                    {% endif %}
+                 </div>
+
+
+                {# Botones de acción #}
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                     <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary"> {# Botón azul primario para guardar #}
+                        <i class="bi bi-save"></i> Guardar Cambios
+                    </button>
+                </div>
+                 <small class="text-muted d-block mt-3"><span class="text-danger">*</span> Campos obligatorios</small>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{# Script de validación Bootstrap (igual que en add_item) #}
+{% block scripts %}
+<script>
+(function () {
+  'use strict'
+  var forms = document.querySelectorAll('.needs-validation')
+  Array.prototype.slice.call(forms)
+    .forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+        form.classList.add('was-validated')
+      }, false)
+    })
+})()
+</script>
+{% endblock %}

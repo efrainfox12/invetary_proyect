@@ -1,0 +1,44 @@
+{% extends "index.html" %}
+{% block title %}Aprobar Usuarios{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-person-check"></i> Usuarios Pendientes de Aprobación</h2>
+<div class="table-responsive shadow-sm rounded">
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Nombre de Usuario</th>
+                <th>Fecha de Registro</th>
+                <th class="text-center">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.username }}</td>
+                <td class="text-nowrap">{{ user.created_at_str }}</td>
+                <td class="text-center">
+                    <!-- Formulario para Aprobar -->
+                    <form action="{{ url_for('approve_user', user_id=user.id) }}" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-success" title="Aprobar usuario">
+                            <i class="bi bi-check-lg"></i> Aprobar
+                        </button>
+                    </form>
+
+                    <!-- Formulario para Denegar (NUEVO) -->
+                    <form action="{{ url_for('deny_user', user_id=user.id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Estás seguro de que quieres denegar y eliminar permanentemente a este usuario? Esta acción no se puede deshacer.');">
+                        <button type="submit" class="btn btn-sm btn-danger" title="Denegar y eliminar usuario">
+                            <i class="bi bi-x-lg"></i> Denegar
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="3" class="text-center text-muted p-4">No hay usuarios pendientes de aprobación.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

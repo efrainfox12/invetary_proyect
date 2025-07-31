@@ -1,0 +1,16 @@
+{% extends "index.html" %}
+
+{% block title %}404 - Página no Encontrada{% endblock %}
+
+{% block content %}
+<div class="text-center mt-5 py-5">
+    <h1 class="display-1 text-primary fw-bold">404</h1>
+    <h2 class="mb-3"><i class="bi bi-compass-fill text-warning"></i> ¡Ups! Página Perdida</h2>
+    <p class="lead text-muted mb-4">
+        Lo sentimos, la página que buscas no existe o ha sido movida.
+    </p>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">
+        <i class="bi bi-house-door"></i> Ir al Dashboard
+    </a>
+</div>
+{% endblock %}

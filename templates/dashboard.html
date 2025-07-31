@@ -1,0 +1,97 @@
+{% extends "index.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h2><i class="bi bi-list-check"></i> Inventario Actual</h2>
+         <a href="{{ url_for('add_item') }}" class="btn btn-success">
+            <i class="bi bi-plus-lg"></i> Añadir Objeto
+        </a>
+    </div>
+
+    {# --- Formulario de Búsqueda --- #}
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+             <h5 class="card-title mb-3"><i class="bi bi-search"></i> Buscar en Inventario</h5>
+             <form method="GET" action="{{ url_for('dashboard') }}">
+                <div class="input-group">
+                    <input type="text" name="search_id" class="form-control" placeholder="Buscar por ID exacto del código de barras..." value="{{ search_query | default('', true) }}" aria-label="ID a buscar">
+                    <button class="btn btn-outline-primary" type="submit"><i class="bi bi-search"></i> Buscar</button>
+                    {% if search_query %}
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary" title="Limpiar búsqueda"><i class="bi bi-x-lg"></i> Limpiar</a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+    {# --- Fin Formulario de Búsqueda --- #}
+
+
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table table-striped table-hover table-bordered align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th scope="col" class="text-nowrap">ID</th>
+                    <th scope="col">Objeto</th>
+                    <th scope="col">Marca</th>
+                    <th scope="col">Lugar</th>
+                    <th scope="col">Pertenece a</th>
+                    <th scope="col" class="text-nowrap">Fecha Ingreso</th>
+                    <th scope="col">Código Barras</th>
+                    <th scope="col" class="text-center text-nowrap">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if items %}
+                    {% for item in items %}
+                    <tr>
+                        <!-- CORREGIDO: Se usa item.id en lugar de item._id -->
+                        <td class="text-monospace small"><code>{{ item.id }}</code></td>
+                        <td>{{ item.objeto | e }}</td>
+                        <td>{{ item.marca | default('--', true) | e }}</td>
+                        <td>{{ item.lugar | e }}</td>
+                        <td>{{ item.pertenece_a | e }}</td>
+                        <!-- CORREGIDO: Se accede directamente a fecha_ingreso_str, sin .otros -->
+                        <td class="text-nowrap small">{{ item.fecha_ingreso_str | default('N/A') }}</td>
+                        <td>
+                            <!-- CORREGIDO: Se usa item.id para el alt text -->
+                            {% if item.codigo_barras_url %}
+                                <img src="{{ item.codigo_barras_url }}" alt="Código {{ item.id }}" class="barcode-img">
+                            {% else %}
+                                <span class="text-muted small">Sin código</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center actions-cell">
+                        {% if session.role == 'admin' %}
+                            <a href="{{ url_for('edit_item', item_id=item.id) }}" class="btn btn-sm btn-outline-primary me-1" title="Editar">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <form action="{{ url_for('delete_item', item_id=item.id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este objeto?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        {% else %}
+                            <span class="text-muted" title="Solo los administradores pueden editar"><i class="bi bi-eye"></i></span>
+                        {% endif %}
+                    </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                 <tr>
+                    <td colspan="8" class="text-center text-muted p-4">
+                       {% if search_query %}
+                            <i class="bi bi-emoji-frown me-2"></i>No se encontraron objetos con el ID '{{ search_query | e }}'.
+                       {% else %}
+                            <i class="bi bi-info-circle me-2"></i>No hay objetos registrados en el inventario.
+                            <a href="{{ url_for('add_item') }}" class="ms-2">Añadir uno ahora</a>.
+                       {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "index.html" %}
+{% block title %}Panel de Control{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-activity"></i> Registro de Actividad del Sistema</h2>
+<div class="table-responsive shadow-sm rounded">
+    <table class="table table-striped table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Fecha y Hora</th>
+                <th>Usuario</th>
+                <th>Acción</th>
+                <th>ID Afectado</th>
+                <th>Detalles</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for action in actions %}
+            <tr>
+                <td class="text-nowrap">{{ action.timestamp_str }}</td>
+                <td>{{ action.username }}</td>
+                <td><span class="badge bg-secondary">{{ action.action }}</span></td>
+                <td><code>{{ action.target_id | default('N/A') }}</code></td>
+                <td>{{ action.details | default('') }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center text-muted p-4">No hay actividad registrada.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

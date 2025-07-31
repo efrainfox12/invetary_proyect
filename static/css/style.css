@@ -1,0 +1,192 @@
+/* static/css/style.css */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f7f6;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header {
+    background-color: #007bff; /* Azul primario */
+    color: white;
+    padding: 15px 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center; /* Centrar título */
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.8em;
+}
+
+nav {
+   background-color: #e9ecef; /* Gris claro */
+   padding: 10px 30px;
+   border-bottom: 1px solid #dee2e6; /* Borde sutil */
+}
+
+nav a {
+    text-decoration: none;
+    color: #007bff;
+    padding: 8px 15px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+nav a:hover {
+    background-color: #cfe2ff; /* Azul más claro al pasar el ratón */
+    color: #0056b3; /* Azul más oscuro */
+}
+
+main {
+    flex-grow: 1; /* Hace que el contenido principal ocupe el espacio disponible */
+    padding: 30px;
+    max-width: 1200px; /* Limita el ancho máximo */
+    margin: 20px auto; /* Centra el contenido */
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.05);
+}
+
+h2 {
+    color: #0056b3; /* Azul más oscuro */
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+/* Estilos para Formularios */
+form div {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center; /* Alinear label e input verticalmente */
+}
+
+form label {
+    display: inline-block;
+    width: 120px; /* Ancho fijo para labels */
+    margin-right: 10px;
+    font-weight: 600;
+    color: #495057; /* Gris oscuro */
+}
+
+form input[type=text],
+form textarea,
+form select /* Si añades selects */ {
+    flex-grow: 1; /* Hacer que los inputs ocupen el espacio restante */
+    padding: 10px;
+    border: 1px solid #ced4da; /* Borde gris claro */
+    border-radius: 4px;
+    font-size: 1em;
+    box-sizing: border-box; /* Incluir padding/border en el ancho total */
+}
+
+form textarea {
+    min-height: 80px; /* Altura mínima para textarea */
+    resize: vertical; /* Permitir redimensionar verticalmente */
+}
+
+form button[type=submit],
+.button-link { /* Estilo común para botones y enlaces que parecen botones */
+    background-color: #28a745; /* Verde éxito */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    text-decoration: none; /* Para .button-link */
+    display: inline-block; /* Para .button-link */
+    transition: background-color 0.2s ease;
+    margin-top: 10px; /* Espacio arriba del botón */
+}
+
+form button[type=submit]:hover,
+.button-link:hover {
+    background-color: #218838; /* Verde más oscuro */
+}
+
+.button-link.add { /* Estilo específico para el botón de añadir */
+     background-color: #007bff; /* Azul */
+}
+
+.button-link.add:hover {
+     background-color: #0056b3; /* Azul oscuro */
+}
+
+
+form small {
+    display: block; /* Hacer que ocupe su propia línea */
+    margin-top: 10px;
+    color: #6c757d; /* Gris */
+    font-style: italic;
+}
+
+/* Estilos para Tablas */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 25px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+th, td {
+    border: 1px solid #dee2e6;
+    padding: 12px 15px; /* Más padding */
+    text-align: left;
+    vertical-align: middle; /* Alinear contenido verticalmente */
+}
+
+th {
+    background-color: #e9ecef; /* Gris claro para cabeceras */
+    font-weight: 600;
+    color: #495057;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f8f9fa; /* Rayado ligero para filas pares */
+}
+
+tbody tr:hover {
+    background-color: #e2e6ea; /* Color al pasar el ratón */
+}
+
+img.barcode {
+    max-height: 35px; /* Ajustar altura del código de barras */
+    display: block; /* Evitar espacio extra debajo */
+}
+
+/* Mensajes de error/éxito (si usas flash messages) */
+.flash-message {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.flash-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.flash-error {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+footer {
+    text-align: center;
+    padding: 15px;
+    margin-top: 30px; /* Separación del contenido principal */
+    background-color: #e9ecef;
+    color: #6c757d;
+    border-top: 1px solid #dee2e6;
+    font-size: 0.9em;
+}
