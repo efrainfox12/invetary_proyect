@@ -14,6 +14,10 @@ from flask import (
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from dotenv import load_dotenv
+import io
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 
 load_dotenv()
@@ -25,11 +29,24 @@ logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
 
 
+
+
 app.secret_key = os.environ.get("FLASK_SECRET_KEY")
 
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
-
+# --- Configuración de Cloudinary ---
+try:
+    cloudinary.config(
+        cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME'),
+        api_key=os.environ.get('CLOUDINARY_API_KEY'),
+        api_secret=os.environ.get('CLOUDINARY_API_SECRET'),
+        secure=True
+    )
+    logging.info("Configuración de Cloudinary cargada exitosamente.")
+except Exception as e:
+    logging.critical(f"Error fatal: No se pudieron cargar las credenciales de Cloudinary. Revisa tu archivo .env. Error: {e}")
+    exit()
 if not DATABASE_URL:
     logging.critical("Error: La variable de entorno DATABASE_URL no está configurada.")
 
@@ -65,7 +82,7 @@ def inject_now():
     }
 
 
-# --- Helper para borrar barcode (sin cambios) ---
+# --- Helper para borrar barcode ---
 def delete_barcode_image(barcode_url):
     """Intenta eliminar un archivo de código de barras basado en su URL relativa."""
     if not barcode_url:
@@ -295,20 +312,29 @@ def add_item():
             id_objeto = str(uuid.uuid4())[:8]
 
             # --- Generar Código de Barras ---
-            barcode_filename = f"{id_objeto}.png"
-            barcode_folder = os.path.join('static', 'barcode')
-            os.makedirs(barcode_folder, exist_ok=True)
-            barcode_path_full = os.path.join(barcode_folder, barcode_filename)
-            barcode_url = url_for('static', filename=f'barcode/{barcode_filename}')
-
+            barcode_url = None
             try:
+                # Generar la imagen en memoria
                 code128 = barcode.get('code128', id_objeto, writer=ImageWriter())
-                code128.save(os.path.join(barcode_folder, id_objeto))
+                buffer = io.BytesIO()
+                code128.write(buffer)
+                buffer.seek(0)
+
+                # Subir la imagen desde el buffer a Cloudinary
+                upload_result = cloudinary.uploader.upload(
+                    buffer,
+                    public_id=f"barcode_{id_objeto}",
+                    folder="inventory_barcodes",  # Carpeta en Cloudinary
+                    resource_type="image"
+                )
+
+                # Obtener la URL segura de la imagen
+                barcode_url = upload_result.get('secure_url')
+
             except Exception as e_barcode:
-                logging.error(f"Error generando/guardando barcode para ID {id_objeto}: {e_barcode}", exc_info=True)
+                logging.error(f"Error generando/subiendo barcode a Cloudinary: {e_barcode}", exc_info=True)
                 flash("Error interno al generar el código de barras.", "danger")
                 return render_template("add_item.html", form_data=request.form), 500
-
             # --- Guardar en PostgreSQL ---
             with get_db_connection() as conn:
                 if conn is None:
