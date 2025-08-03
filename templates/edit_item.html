@@ -3,26 +3,26 @@
 {% block title %}Editar Objeto{% endblock %}
 
 {% block content %}
-    {# La variable 'item' viene de la ruta GET /edit/<item_id> #}
-    <h2><i class="bi bi-pencil-fill"></i> Editar Objeto (ID: <code>{{ item._id }}</code>)</h2>
+    {# Se usa item.id para el título #}
+    <h2><i class="bi bi-pencil-fill"></i> Editar Objeto (ID: <code>{{ item.id }}</code>)</h2>
 
     <div class="card shadow-sm mt-4">
         <div class="card-body">
-            {# La acción del formulario apunta a la misma URL pero con método POST #}
-            <form method="POST" action="{{ url_for('edit_item', item_id=item._id) }}" class="needs-validation" novalidate>
+            {# ¡CORREGIDO! La acción del formulario ahora usa item.id correctamente #}
+            <form method="POST" action="{{ url_for('edit_item', item_id=item.id) }}" class="needs-validation" novalidate>
 
-                {# Mostrar código de barras actual (si existe) #}
+                {# Mostrar código de barras actual (si existe), usando item.id #}
                 {% if item.codigo_barras_url %}
                 <div class="mb-4 text-center">
                     <label class="form-label d-block fw-bold">Código de Barras Actual:</label>
-                    <img src="{{ item.codigo_barras_url }}" alt="Código {{ item._id }}" class="barcode-img border p-1 bg-light rounded" style="max-width: 250px;">
-                    <p class="small text-muted mt-1">ID: <code>{{ item._id }}</code></p>
+                    <img src="{{ item.codigo_barras_url }}" alt="Código {{ item.id }}" class="barcode-img border p-1 bg-light rounded" style="max-width: 250px;">
+                    <p class="small text-muted mt-1">ID: <code>{{ item.id }}</code></p>
                 </div>
                  <hr class="mb-4">
                 {% endif %}
 
 
-                {# Fila para Objeto y Color (pre-rellenado con item.get) #}
+                {# Fila para Objeto y Color #}
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="objeto" class="form-label">Objeto <span class="text-danger">*</span></label>
@@ -51,7 +51,6 @@
                  <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="pertenece" class="form-label">Pertenece a <span class="text-danger">*</span></label>
-                        {# Ojo: el campo en Mongo es 'pertenece_a', pero el name del input es 'pertenece' #}
                         <input type="text" class="form-control" id="pertenece" name="pertenece" required value="{{ item.get('pertenece_a', '') }}">
                          <div class="invalid-feedback">Por favor, indica a quién pertenece.</div>
                     </div>
@@ -63,7 +62,7 @@
                 </div>
 
                 {# Fila para Detalles #}
-                <div class="mb-4"> {# Más margen inferior antes de las fechas #}
+                <div class="mb-4">
                     <label for="detalle" class="form-label">Detalle</label>
                     <textarea class="form-control" id="detalle" name="detalle" rows="3">{{ item.get('detalle', '') }}</textarea>
                 </div>
@@ -72,14 +71,12 @@
                  <div class="row mb-4">
                      <div class="col-md-6">
                          <label class="form-label d-block fw-bold">Fecha Ingreso:</label>
-                         {# Acceder a la fecha formateada en 'otros' #}
-                         <span class="form-control-plaintext">{{ item.get('otros', {}).get('fecha_ingreso_str', 'N/A') }}</span>
+                         <span class="form-control-plaintext">{{ item.get('fecha_ingreso_str', item.get('otros', {}).get('fecha_ingreso_str', 'N/A')) }}</span>
                      </div>
-                     {# Mostrar fecha de modificación si existe #}
-                     {% if item.get('otros', {}).get('modificado_en_str') %}
+                     {% if item.get('fecha_modificacion_str') or item.get('otros', {}).get('modificado_en_str') %}
                      <div class="col-md-6">
                          <label class="form-label d-block fw-bold">Última Modificación:</label>
-                         <span class="form-control-plaintext">{{ item.get('otros', {}).get('modificado_en_str') }}</span>
+                         <span class="form-control-plaintext">{{ item.get('fecha_modificacion_str', item.get('otros', {}).get('modificado_en_str')) }}</span>
                      </div>
                     {% endif %}
                  </div>
@@ -90,7 +87,7 @@
                      <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
                         <i class="bi bi-x-circle"></i> Cancelar
                     </a>
-                    <button type="submit" class="btn btn-primary"> {# Botón azul primario para guardar #}
+                    <button type="submit" class="btn btn-primary">
                         <i class="bi bi-save"></i> Guardar Cambios
                     </button>
                 </div>
@@ -100,7 +97,7 @@
     </div>
 {% endblock %}
 
-{# Script de validación Bootstrap (igual que en add_item) #}
+{# Script de validación Bootstrap (sin cambios) #}
 {% block scripts %}
 <script>
 (function () {
